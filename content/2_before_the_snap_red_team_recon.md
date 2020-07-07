@@ -13,16 +13,16 @@
 对于所有客户机，我们要做的第一件事就是设置不同的监视脚本。这些通常只是一些能快速完成的 bash 脚本，它们每天通过电子邮件向我们发送客户机网络的差异。当然，在扫描之前，确保你有适当合法的授权来执行扫描。
  
 对于一般不太大的客户机网络，我们设置简单的 cronjob 来执行外部端口差异化分析。例如，我们可以创建一个快速的 Linux bash 脚本来完成这项艰巨的工作（请记住替换下面脚本中的 IP 范围）:
-- #!/bin/bash
-- mkdir /opt/nmap_diff
-- d=$(date +%Y-%m-%d)
-- y=$(date -d yesterday +%Y-%m-%d)
-- /usr/bin/nmap -T4 -oX /opt/nmap_diff/scan_$d.xml 10.100.100.0/24 ><br>
- /dev/null 2>&1
-- if [ -e /opt/nmap_diff/scan_$y.xml ]; then
-- /usr/bin/ndiff /opt/nmap_diff/scan_$y.xml /opt/nmap_diff/scan_$d.xml ><br>
-/opt/nmap_diff/diff.txt
-- fi
+```
+#!/bin/bash
+mkdir /opt/nmap_diff
+d=$(date +%Y-%m-%d)
+y=$(date -d yesterday +%Y-%m-%d)
+/usr/bin/nmap -T4 -oX /opt/nmap_diff/scan_$d.xml 10.100.100.0/24 >/dev/null 2>&1
+if [ -e /opt/nmap_diff/scan_$y.xml ]; then
+/usr/bin/ndiff /opt/nmap_diff/scan_$y.xml /opt/nmap_diff/scan_$d.xml >/opt/nmap_diff/diff.txt
+fi
+```
 > 译者注：上面这段脚本中使用了正则表达式。所以本小节的英文名字叫 Regular Nmap Diffing。
 
 这是一个非常简单的脚本，它每天用默认的端口运行 nmap，然后使用 ndiff 比较结果。然后，我们可以获取这个脚本的输出结果，并让它把每天发现的新端口及时通知我们的团队。<br>
